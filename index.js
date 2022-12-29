@@ -36,11 +36,39 @@ async function run() {
     const users = client.db('vartualMeet').collection('users');
     // const users = client.db('vartualMeet').collection('users')
      
- 
+
+    // ===============users collection and DBMS ==================//
+    // get all users
     app.get('/user', async (req,res)=> {
         const query = {} ;
         const data = await users.find(query).toArray();
         res.send(data)
+    })
+
+    //  save user  info in  database 
+    app.post('/usersData', async(req,res)=> {
+        const reqBody = req.body;
+        const saveUserData = await users.insertOne(reqBody);
+        res.send(saveUserData);
+    })
+
+    // update user information 
+    app.post('/updateUser/:email', async(req,res) => {
+        const reqBody = req.body ;
+        const email = req.params.email;
+        //  find image url from client side req.
+        const updateImg  =  reqBody.userImg ;
+        const filter = {email:email}
+        const options = { upsert: true };
+        const updateDoc = {
+            $set: {
+              userImg: updateImg 
+            },
+          };
+        const result = await users.updateOne(filter,updateDoc,options)
+        console.log(result,'result') 
+        console.log(reqBody)
+        console.log(updateImg,'update')
     })
    
   } finally {
