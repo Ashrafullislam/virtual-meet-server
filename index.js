@@ -1,8 +1,10 @@
+
+
 const express = require ("express");
 const app = express();
 const cors = require('cors')
 const port = process.env.PORT || 5000 ;
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const { query } = require('express');
 
@@ -21,9 +23,7 @@ app.get('/', (req,res) => {
 
 
 
-// Mongodb part start here 
-// Vartual_Meet:Vartual_meet
-//pas:DQGilKbuqEYowz7g
+// ************************* Mongodb part start here************************** \\
 
 const uri = `mongodb+srv://vartualMeet:p0KvICONhWjeIve9@cluster0.rhjlmgh.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
@@ -34,8 +34,7 @@ async function run() {
   try {
     // all collection of database 
     const users = client.db('vartualMeet').collection('users');
-    // const users = client.db('vartualMeet').collection('users')
-     
+    const postData = client.db('vartualMeet').collection('postData');      
 
     // ===============users collection and DBMS ==================//
     // get all users
@@ -53,8 +52,6 @@ async function run() {
         res.send(aboutMeInfo);
     })
     
-
-
 
     //  save user  info in  database 
     app.post('/usersData', async(req,res)=> {
@@ -88,8 +85,7 @@ async function run() {
     })
 
 
-    // update user cover photo by post method 
-       // update user profile picture ;
+    //------------ update user cover photo by post method 
        app.post('/updateUser/coverphoto/:email', async(req,res) => {
         const reqBody = req.body ;
         const email = req.params.email;
@@ -112,8 +108,23 @@ async function run() {
 
     })
 
+    // =============== Post  collection and DBMS ==================//
 
+    app.post('/postdata', async(req,res)=> {
+      const reqBody = req.body ;
+      const id = req.params.id ;
+      console.log(reqBody,'req body')
+      const post = await postData.insertOne(reqBody);
+      res.send(post);
+      console.log(post,'post ')
+    })
 
+   // ----------- get all post -------------//
+   app.get('/postdata', async(req, res ) => {
+    const query = {} ;
+    const allPost = await postData.find(query).toArray();
+    res.send(allPost); 
+   })
    
   } finally {
     // Ensures that the client will close when you finish/error
