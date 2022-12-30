@@ -45,6 +45,17 @@ async function run() {
         res.send(data)
     })
 
+    // get user  info from db by email 
+    app.get('/aboutme/:email', async(req,res)=> {
+        const email = req.params.email;
+        const query = {email:email};
+        const aboutMeInfo  = await users.findOne(query);
+        res.send(aboutMeInfo);
+    })
+    
+
+
+
     //  save user  info in  database 
     app.post('/usersData', async(req,res)=> {
         const reqBody = req.body;
@@ -52,24 +63,57 @@ async function run() {
         res.send(saveUserData);
     })
 
-    // update user information 
+    // update user profile picture ;
     app.post('/updateUser/:email', async(req,res) => {
         const reqBody = req.body ;
         const email = req.params.email;
         //  find image url from client side req.
         const updateImg  =  reqBody.userImg ;
+        const updateBanner = reqBody.userBanner;
         const filter = {email:email}
         const options = { upsert: true };
         const updateDoc = {
             $set: {
-              userImg: updateImg 
+              userImg: updateImg ,
+              
+            },
+          };
+        const result = await users.updateOne(filter,updateDoc,options)
+        // console.log(result,'result') 
+        // console.log(reqBody)
+        // console.log(updateImg,'update')
+        res.send(result);
+
+
+    })
+
+
+    // update user cover photo by post method 
+       // update user profile picture ;
+       app.post('/updateUser/coverphoto/:email', async(req,res) => {
+        const reqBody = req.body ;
+        const email = req.params.email;
+        //  find image url from client side req.
+        const updateBanner = reqBody.userBanner;
+        console.log(updateBanner)
+        const filter = {email:email}
+        const options = { upsert: true };
+        const updateDoc = {
+            $set: {
+              userBanner: updateBanner ,
+              
             },
           };
         const result = await users.updateOne(filter,updateDoc,options)
         console.log(result,'result') 
-        console.log(reqBody)
-        console.log(updateImg,'update')
+        res.send(result);
+        console.log(result)
+
+
     })
+
+
+
    
   } finally {
     // Ensures that the client will close when you finish/error
