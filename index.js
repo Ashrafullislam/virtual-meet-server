@@ -35,7 +35,8 @@ async function run() {
     // all collection of database 
     const users = client.db('vartualMeet').collection('users');
     const postData = client.db('vartualMeet').collection('postData');      
-
+    const comment = client.db('vartualMeet').collection('comment');      
+    
     // ===============users collection and DBMS ==================//
     // get all users
     app.get('/user', async (req,res)=> {
@@ -97,11 +98,9 @@ async function run() {
         const updateDoc = {
             $set: {
               userBanner: updateBanner ,
-              
             },
           };
         const result = await users.updateOne(filter,updateDoc,options)
-        console.log(result,'result') 
         res.send(result);
         console.log(result)
 
@@ -125,7 +124,32 @@ async function run() {
     const allPost = await postData.find(query).toArray();
     res.send(allPost); 
    })
-   
+   app.post('/comment', async(req,res)  => {
+    const findComment = req.body ;
+    const saveComment = await comment.insertOne(findComment);
+    console.log(findComment);
+    res.send(saveComment)
+
+   })
+
+  app.post('/reactions/:id', async(req,res) => {
+    const reqBody = req.body ;
+    const react = reqBody.total;
+    console.log(react,'reeact')
+    const id = req.params.id;
+    const filter = {_id:ObjectId(id)}
+    const options = {upsert:true}
+    const updateDoc = {
+      $set: {
+        reactions: react ,
+      },
+    };
+    const result = await postData.updateOne(filter,updateDoc,options)
+    res.send(result)
+  }) 
+
+  //-------- get all reaction by posted id and show client site ---------//
+ 
   } finally {
     // Ensures that the client will close when you finish/error
   }
